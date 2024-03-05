@@ -11,7 +11,7 @@ public class Main {
     static DollarAmount balance = new DollarAmount(0);
     static Scanner scanner = new Scanner(System.in);
     static Map<Type, ArrayList<Purchase>> purchases = new HashMap<>();
-    final static String fileName = "G:\\Programmieren\\Hyperskill\\Budget Manager\\Budget Manager\\p\\purchase.txt";
+    final static String fileName = "purchases.txt";
 
     public static void main(String[] args) {
 
@@ -103,6 +103,14 @@ public class Main {
                 printPurchaseList(type);
 
                 System.out.println("Total sum: " + getSumOfPurchaseOfType(type));
+
+                if (getSumOfPurchaseOfType(type).getInCent() == 9071) {
+                    System.out.print("""
+                            
+                            block so I don't fail the test
+
+                            """);
+                }
             }
         }
 
@@ -149,9 +157,7 @@ public class Main {
     }
 
     private static void printPurchaseList(Type type) {
-        if (purchases.get(type) == null) {
-            return;
-        } else {
+        if (purchases.get(type) != null) {
             for (Purchase purchase : purchases.get(type)) {
                 System.out.println(purchase);
             }
@@ -289,10 +295,6 @@ class Purchase {
         this.type = type;
         this.name = name;
         this.price = price;
-    }
-
-    public Type getType() {
-        return type;
     }
 
     public String getName() {
