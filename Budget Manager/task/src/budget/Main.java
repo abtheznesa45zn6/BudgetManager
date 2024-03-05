@@ -1,15 +1,17 @@
 package budget;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.*;
+import java.io.FileWriter;
 
 public class Main {
 
     static DollarAmount balance = new DollarAmount(0);
     static Scanner scanner = new Scanner(System.in);
     static Map<Type, ArrayList<Purchase>> purchases = new HashMap<>();
+    final static String fileName = "G:\\Programmieren\\Hyperskill\\Budget Manager\\Budget Manager\\p\\purchase.txt";
 
     public static void main(String[] args) {
 
@@ -29,6 +31,8 @@ public class Main {
                 case 2 -> chooseTypeOfPurchaseInput();
                 case 3 -> chooseTypeOfPurchaseOutput();
                 case 4 -> printBalance();
+                case 5 -> save();
+                case 6 -> load();
                 default -> System.out.println("Action not available");
             }
 
@@ -38,6 +42,7 @@ public class Main {
             }
         }
     }
+
 
     private static void exit() {
         System.out.println("Bye!");
@@ -176,6 +181,62 @@ public class Main {
         System.out.println("Balance: "+balance.toString());
     }
 
+    private static void save() {
+        try (FileWriter writer = new FileWriter(fileName, false)) {
+            writer.write("BALANCE"+"\n");
+            writer.write(balance.getInCent()+"\n");
+            for (Type type : purchases.keySet()) {
+                writer.write("TYPE"+"\n");
+                writer.write(type.getTypeName()+"\n");
+                for (Purchase purchase : purchases.get(type)) {
+                    writer.write("PURCHASE"+"\n");
+                    writer.write(purchase.getName()+"\n");
+                    writer.write(purchase.getPrice().getInCent()+"\n");
+                }
+            }
+    } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Purchases were saved!");
+    }
+
+    private static void load() {
+        try (Scanner scanner = new Scanner(new File(fileName))) {
+
+            if (scanner.nextLine().equals("BALANCE")) {
+                balance = new DollarAmount(Integer.parseInt(scanner.nextLine()));
+
+                purchases = new HashMap<>();
+                Type type = null;
+                while (scanner.hasNext()) {
+                    if (scanner.nextLine().equals("TYPE")) {
+                        type = getTypeFromString(scanner.nextLine());
+                        
+                    } else {
+                        String name = scanner.nextLine();
+                        DollarAmount price = new DollarAmount(Integer.parseInt(scanner.nextLine()));
+                        Purchase purchase = new Purchase(type, name, price);
+                        purchases.computeIfAbsent(type, k -> new ArrayList<>()).add(purchase);
+                    }
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("No file found: " + fileName);
+        }
+    }
+
+    private static Type getTypeFromString(String string) {
+        return switch (string) {
+            case "Food" -> Type.FOOD;
+            case "Clothes" -> Type.CLOTHES;
+            case "Entertainment" -> Type.ENTERTAINMENT;
+            case "Other" -> Type.OTHER;
+            default -> throw new IllegalArgumentException("Unknown type: " + string);
+        };
+    }
+
     private static void printActionMenu() {
         System.out.print(
                 """
@@ -184,6 +245,8 @@ public class Main {
                 2) Add purchase
                 3) Show list of purchases
                 4) Balance
+                5) Save
+                6) Load
                 0) Exit
                 """
         );
@@ -288,18 +351,21 @@ class DollarAmount {
         return cent;
     }
 
-    public String getDollar() {
-        return String.valueOf(cent / 100);
+    private Integer getDollar() {
+        return cent / 100;
     }
 
-    public String getCent() {
-        return String.valueOf(cent % 100);
+    private Integer getCent() {
+        return cent % 100;
     }
 
     @Override
     public String toString() {
         if (cent < 0) {
-            throw new IllegalStateException();
+            return "$-" +
+                   getDollar()*-1 +
+                   "." +
+                   getCent()*-1;
         }
 
         if (cent >= 100) {
