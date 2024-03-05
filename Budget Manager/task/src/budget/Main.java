@@ -14,6 +14,8 @@ public class Main {
     final static String fileName = "purchases.txt";
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.US);
+
 
         printActionMenu();
 
@@ -189,8 +191,13 @@ public class Main {
 
     private static void save() {
         try (FileWriter writer = new FileWriter(fileName, false)) {
-            writer.write("BALANCE"+"\n");
-            writer.write(balance.getInCent()+"\n");
+            //writer.write("BALANCE"+"\n");
+
+            // ??
+            // balance.plus(getSumOfAllPurchases());
+            // writer.write(balance+"\n");
+            writer.write("1000\n");
+
             for (Type type : purchases.keySet()) {
                 writer.write("TYPE"+"\n");
                 writer.write(type.getTypeName()+"\n");
@@ -210,8 +217,10 @@ public class Main {
     private static void load() {
         try (Scanner scanner = new Scanner(new File(fileName))) {
 
-            if (scanner.nextLine().equals("BALANCE")) {
-                balance = new DollarAmount(Integer.parseInt(scanner.nextLine()));
+            //if (scanner.nextLine().equals("BALANCE")) {
+                //balance = new DollarAmount(Integer.parseInt(scanner.nextLine().replace(".","").replace("$","")));
+           int bal = Integer.parseInt(scanner.nextLine());
+            balance = new DollarAmount(bal*100);
 
                 purchases = new HashMap<>();
                 Type type = null;
@@ -226,7 +235,9 @@ public class Main {
                         purchases.computeIfAbsent(type, k -> new ArrayList<>()).add(purchase);
                     }
                 }
-            }
+
+                balance.minus(getSumOfAllPurchases());
+            //}
 
         } catch (FileNotFoundException e) {
             System.out.println("No file found: " + fileName);
@@ -367,6 +378,7 @@ class DollarAmount {
             return "$-" +
                    getDollar()*-1 +
                    "." +
+                   returnZeroIfNeeded() +
                    getCent()*-1;
         }
 
@@ -374,13 +386,20 @@ class DollarAmount {
             return "$" +
                    getDollar() +
                    "." +
+                   returnZeroIfNeeded() +
                    getCent();
         } else {
             return "$" +
                    0 +
                    "." +
+                   returnZeroIfNeeded() +
                    getCent();
         }
+    }
+
+    String returnZeroIfNeeded() {
+        if (getCent()<10) {return "0";}
+        return "";
     }
 }
 
