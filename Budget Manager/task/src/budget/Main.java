@@ -105,14 +105,6 @@ public class Main {
                 printPurchaseList(type);
 
                 System.out.println("Total sum: " + getSumOfPurchaseOfType(type));
-
-                if (getSumOfPurchaseOfType(type).getInCent() == 9071) {
-                    System.out.print("""
-                            
-                            block so I don't fail the test
-
-                            """);
-                }
             }
         }
 
@@ -191,12 +183,8 @@ public class Main {
 
     private static void save() {
         try (FileWriter writer = new FileWriter(fileName, false)) {
-            //writer.write("BALANCE"+"\n");
-
-            // ??
-            // balance.plus(getSumOfAllPurchases());
-            // writer.write(balance+"\n");
-            writer.write("1000\n");
+            writer.write("BALANCE"+"\n");
+            writer.write(balance.getInCent()+"\n"); //"$785.64" is written as "78564" in one line
 
             for (Type type : purchases.keySet()) {
                 writer.write("TYPE"+"\n");
@@ -210,17 +198,14 @@ public class Main {
     } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         System.out.println("Purchases were saved!");
     }
 
     private static void load() {
         try (Scanner scanner = new Scanner(new File(fileName))) {
 
-            //if (scanner.nextLine().equals("BALANCE")) {
-                //balance = new DollarAmount(Integer.parseInt(scanner.nextLine().replace(".","").replace("$","")));
-           int bal = Integer.parseInt(scanner.nextLine());
-            balance = new DollarAmount(bal*100);
+            if (scanner.nextLine().equals("BALANCE")) {
+                balance = new DollarAmount(Integer.parseInt(scanner.nextLine()));
 
                 purchases = new HashMap<>();
                 Type type = null;
@@ -235,13 +220,11 @@ public class Main {
                         purchases.computeIfAbsent(type, k -> new ArrayList<>()).add(purchase);
                     }
                 }
-
-                balance.minus(getSumOfAllPurchases());
-            //}
-
+            }
         } catch (FileNotFoundException e) {
             System.out.println("No file found: " + fileName);
         }
+        System.out.println("Purchases were loaded!");
     }
 
     private static Type getTypeFromString(String string) {
