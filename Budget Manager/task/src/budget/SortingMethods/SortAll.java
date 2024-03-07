@@ -17,7 +17,7 @@ public class SortAll implements SortingMethod {
         if (purchases.isEmpty()) {
             System.out.println("The purchase list is empty!");
         } else {
-            System.out.println("All: ");
+            System.out.println("All:");
 
             purchases.values()
                     .stream()
@@ -25,7 +25,7 @@ public class SortAll implements SortingMethod {
                     .sorted(Comparator.comparing(p -> ((Purchase) p).getPrice().getInCent()).reversed())
                     .forEach(System.out::println);
 
-            System.out.println("Total sum: " + purchaseList.getSumOfAllPurchases());
+            System.out.println("Total: " + purchaseList.getSumOfAllPurchases());
         }
     }
 }

@@ -1,5 +1,7 @@
 package budget;
 
+import java.util.Set;
+
 public enum Type {
     FOOD("Food"),
     CLOTHES("Clothes"),

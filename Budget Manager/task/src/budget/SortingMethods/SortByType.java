@@ -25,6 +25,7 @@ public class SortByType implements SortingMethod {
         List<Map.Entry<Type, Long>> purchasesSorted = new ArrayList<>(purchases.entrySet());
         purchasesSorted.sort(Map.Entry.comparingByValue());
 
+        System.out.println("Types:");
         for (Map.Entry<Type, Long> entry : purchasesSorted) {
             System.out.println(
                     entry.getKey().getTypeName() +
@@ -32,6 +33,17 @@ public class SortByType implements SortingMethod {
                     purchaseList.getSumOfPurchaseOfType(entry.getKey())
                     );
         }
+
+        Set<Type> remainingTypes = purchases.keySet();
+        remainingTypes.remove(Type.values());
+
+        for (Type type : remainingTypes) {
+            System.out.println(
+                    type.getTypeName() +
+                            " - $0"
+            );
+        }
+
         System.out.println("Total sum: " + purchaseList.getSumOfAllPurchases());
     }
 }
