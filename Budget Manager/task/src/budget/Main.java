@@ -1,6 +1,8 @@
 package budget;
 
-import budget.SortingMethods.All;
+import budget.SortingMethods.SortAll;
+import budget.SortingMethods.SortByCertainType;
+import budget.SortingMethods.SortByType;
 
 import java.util.Scanner;
 
@@ -86,11 +88,13 @@ public class Main {
         }
 
         if (action == 5) {
-            purchaseList.setSortingMethod(new All());
+            purchaseList.setSortingMethod(new SortAll());
             purchaseList.print();
 
         } else {
-            purchaseList.print(getTypeForInt(action));
+            purchaseList.setSortingMethod(new SortByCertainType());
+            purchaseList.setSortByType(getTypeForInt(action));
+            purchaseList.print();
         }
 
         System.out.println();
@@ -155,13 +159,20 @@ public class Main {
             return;
         }
 
-        analyze(action);
+        setSortingMethod(action);
+        purchaseList.print();
 
         System.out.println();
         printAnalyzeMenu();
     }
 
-    private static void analyze(int action) {
+    private static void setSortingMethod(int action) {
+        switch (action) {
+            case 1 -> purchaseList.setSortingMethod(new SortAll());
+            case 2 -> purchaseList.setSortingMethod(new SortByType());
+            case 3 -> purchaseList.setSortingMethod(new SortByCertainType());
+            default -> throw new IllegalStateException("SortingMethod "+action+" doesn't exist");
+        }
     }
 
     private static void printActionMenu() {

@@ -16,4 +16,8 @@ public enum Type {
     public String getTypeName() {
         return typeName;
     }
+
+    public static Type[] getTypesWithoutAll() {
+        return new Type[]{FOOD, CLOTHES, ENTERTAINMENT, OTHER};
+    }
 }

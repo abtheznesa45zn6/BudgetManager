@@ -1,13 +1,14 @@
 package budget;
 
-import budget.SortingMethods.All;
+import budget.SortingMethods.SortAll;
 import budget.SortingMethods.SortingMethod;
 
 import java.util.*;
 
 public class PurchaseList {
     Map<Type, ArrayList<Purchase>> purchases = new HashMap<>();
-    private SortingMethod sortingMethod = new All();
+    private SortingMethod sortingMethod = new SortAll();
+    private Type sortByType;
 
     public PurchaseList() {
     }
@@ -24,7 +25,7 @@ public class PurchaseList {
         return purchases.isEmpty();
     }
 
-    boolean isEmpty(Type type) {
+    public boolean isEmpty(Type type) {
         return purchases.get(type) == null;
     }
 
@@ -65,19 +66,10 @@ public class PurchaseList {
         sortingMethod.print(this);
     }
 
-    void print(Type type) {
-        if (isEmpty(type)) {
-            System.out.println("The purchase list is empty");
-        } else {
-            System.out.println(type.getTypeName()+":");
-            for (Purchase purchase : purchases.get(type)) {
-                System.out.println(purchase);
-            }
-            System.out.println("Total sum: " + getSumOfPurchaseOfType(type));
-        }
-    }
-
-    public void setSortingMethod(All sortingMethod) {
+    public void setSortingMethod(SortingMethod sortingMethod) {
         this.sortingMethod = sortingMethod;
     }
+
+    public Type getSortByType() {return sortByType;}
+    public void setSortByType(Type type) {sortByType = type;}
 }
