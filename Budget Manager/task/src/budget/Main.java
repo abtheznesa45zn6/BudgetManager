@@ -1,50 +1,46 @@
 package budget;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.*;
-import java.io.FileWriter;
+import java.util.Scanner;
 
 public class Main {
 
     static DollarAmount balance = new DollarAmount(0);
     static Scanner scanner = new Scanner(System.in);
-    static Map<Type, ArrayList<Purchase>> purchases = new HashMap<>();
-    final static String fileName = "purchases.txt";
+    static final PurchaseList purchases = new PurchaseList();
+    static final FileSaver fileSaver = new FileSaver(balance, purchases);
 
     public static void main(String[] args) {
-        Locale.setDefault(Locale.US);
+        try {
+            printActionMenu();
 
+            boolean exited = false;
+            while (!exited) {
 
-        printActionMenu();
-
-        boolean exited = false;
-        while (!exited) {
-
-            int action = scanner.nextInt();
-            System.out.println();
-
-            switch(action) {
-                case 0 -> {
-                    exit();
-                    exited = true;}
-                case 1 -> addIncome();
-                case 2 -> chooseTypeOfPurchaseInput();
-                case 3 -> chooseTypeOfPurchaseOutput();
-                case 4 -> printBalance();
-                case 5 -> save();
-                case 6 -> load();
-                default -> System.out.println("Action not available");
-            }
-
-            if (!exited) {
+                int action = scanner.nextInt();
                 System.out.println();
-                printActionMenu();
+
+                switch(action) {
+                    case 0 -> exited = true;
+                    case 1 -> addIncome();
+                    case 2 -> chooseTypeOfPurchaseInput();
+                    case 3 -> chooseTypeOfPurchaseOutput();
+                    case 4 -> printBalance();
+                    case 5 -> save();
+                    case 6 -> load();
+                    case 7 -> analyze();
+                    default -> System.out.println("Action not available");
+                }
+
+                if (!exited) {
+                    System.out.println();
+                    printActionMenu();
+                }
             }
+        } finally {
+            scanner.close();
+            exit();
         }
     }
-
 
     private static void exit() {
         System.out.println("Bye!");
@@ -95,42 +91,21 @@ public class Main {
                 printPurchaseList(t);
             }
 
-            System.out.println("Total sum: " + getSumOfAllPurchases());
+            System.out.println("Total sum: " + purchases.getSumOfAllPurchases());
 
         } else {
-            if (purchases.get(type) == null) {
+            if (purchases.isEmpty(type)) {
                 System.out.println("The purchase list is empty");
                 return;
             } else {
                 printPurchaseList(type);
 
-                System.out.println("Total sum: " + getSumOfPurchaseOfType(type));
+                System.out.println("Total sum: " + purchases.getSumOfPurchaseOfType(type));
             }
         }
 
         System.out.println();
         chooseTypeOfPurchaseOutput();
-    }
-
-    static DollarAmount getSumOfAllPurchases() {
-        return purchases.values()
-                .stream()
-                .flatMap(ArrayList::stream)
-                .map(Purchase::getPrice)
-                .reduce(new DollarAmount(0), (acc, price) -> {
-                    acc.plus(price);
-                    return acc;
-                });
-    }
-
-    static DollarAmount getSumOfPurchaseOfType(Type type) {
-        return purchases.get(type)
-                .stream()
-                .map(Purchase::getPrice)
-                .reduce(new DollarAmount(0), (acc, price) -> {
-                    acc.plus(price);
-                    return acc;
-                });
     }
 
     static Type getTypeForInt(int number) {
@@ -171,7 +146,7 @@ public class Main {
         DollarAmount price = new DollarAmount(priceString);
 
         Purchase purchase = new Purchase(type, name, price);
-        purchases.computeIfAbsent(type, k -> new ArrayList<>()).add(purchase);
+        purchases.add(type, purchase);
 
         balance.minus(price);
     }
@@ -182,60 +157,22 @@ public class Main {
     }
 
     private static void save() {
-        try (FileWriter writer = new FileWriter(fileName, false)) {
-            writer.write("BALANCE"+"\n");
-            writer.write(balance.getInCent()+"\n"); //"$785.64" is written as "78564" in one line
-
-            for (Type type : purchases.keySet()) {
-                writer.write("TYPE"+"\n");
-                writer.write(type.getTypeName()+"\n");
-                for (Purchase purchase : purchases.get(type)) {
-                    writer.write("PURCHASE"+"\n");
-                    writer.write(purchase.getName()+"\n");
-                    writer.write(purchase.getPrice().getInCent()+"\n");
-                }
-            }
-    } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (fileSaver.save()) {
+            System.out.println("Purchases were saved!");
+        } else {
+            System.out.println("Purchases were not saved!");
         }
-        System.out.println("Purchases were saved!");
     }
 
     private static void load() {
-        try (Scanner scanner = new Scanner(new File(fileName))) {
-
-            if (scanner.nextLine().equals("BALANCE")) {
-                balance = new DollarAmount(Integer.parseInt(scanner.nextLine()));
-
-                purchases = new HashMap<>();
-                Type type = null;
-                while (scanner.hasNext()) {
-                    if (scanner.nextLine().equals("TYPE")) {
-                        type = getTypeFromString(scanner.nextLine());
-                        
-                    } else {
-                        String name = scanner.nextLine();
-                        DollarAmount price = new DollarAmount(Integer.parseInt(scanner.nextLine()));
-                        Purchase purchase = new Purchase(type, name, price);
-                        purchases.computeIfAbsent(type, k -> new ArrayList<>()).add(purchase);
-                    }
-                }
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("No file found: " + fileName);
+        if (fileSaver.load()) {
+            System.out.println("Purchases were loaded!");
         }
-        System.out.println("Purchases were loaded!");
     }
 
-    private static Type getTypeFromString(String string) {
-        return switch (string) {
-            case "Food" -> Type.FOOD;
-            case "Clothes" -> Type.CLOTHES;
-            case "Entertainment" -> Type.ENTERTAINMENT;
-            case "Other" -> Type.OTHER;
-            default -> throw new IllegalArgumentException("Unknown type: " + string);
-        };
+    private static void analyze() {
     }
+    
 
     private static void printActionMenu() {
         System.out.print(
@@ -247,6 +184,7 @@ public class Main {
                 4) Balance
                 5) Save
                 6) Load
+                7) Analyze (Sort)
                 0) Exit
                 """
         );
@@ -280,126 +218,4 @@ public class Main {
     }
 }
 
-class Purchase {
-    Type type;
-    String name;
-    DollarAmount price;
 
-    public Purchase(Type type, String name, DollarAmount price) {
-        this.type = type;
-        this.name = name;
-        this.price = price;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public DollarAmount getPrice() {
-        return price;
-    }
-
-    @Override
-    public String toString() {
-        return name.concat(" ").concat(price.toString());
-    }
-}
-
-class DollarAmount {
-    private int cent;
-
-    public DollarAmount(int cent) {
-        this.cent = cent;
-    }
-
-    public DollarAmount(String priceString) {
-        this(getCentsFromString(priceString));
-    }
-
-    private static int getCentsFromString(String str) {
-        int cents = 0;
-        if (str.contains(".")) {
-            int dollar = Integer.parseInt(str.split("\\.")[0]);
-            cents = cents + dollar * 100;
-
-            String decimals = str.split("\\.")[1];
-            if (decimals.length() > 1) {
-                cents += Integer.parseInt(decimals);
-            } else {
-                cents += Integer.parseInt(decimals) * 10;
-            }
-
-        } else {
-            cents = Integer.parseInt(str) * 100;
-        }
-        return cents;
-    }
-
-    public void plus(DollarAmount addend) {
-        cent += addend.getInCent();
-    }
-
-    public void minus(DollarAmount addend) {
-        cent -= addend.getInCent();
-    }
-
-    public int getInCent() {
-        return cent;
-    }
-
-    private Integer getDollar() {
-        return cent / 100;
-    }
-
-    private Integer getCent() {
-        return cent % 100;
-    }
-
-    @Override
-    public String toString() {
-        if (cent < 0) {
-            return "$-" +
-                   getDollar()*-1 +
-                   "." +
-                   returnZeroIfNeeded() +
-                   getCent()*-1;
-        }
-
-        if (cent >= 100) {
-            return "$" +
-                   getDollar() +
-                   "." +
-                   returnZeroIfNeeded() +
-                   getCent();
-        } else {
-            return "$" +
-                   0 +
-                   "." +
-                   returnZeroIfNeeded() +
-                   getCent();
-        }
-    }
-
-    String returnZeroIfNeeded() {
-        if (getCent()<10) {return "0";}
-        return "";
-    }
-}
-
-enum Type {
-    FOOD("Food"),
-    CLOTHES("Clothes"),
-    ENTERTAINMENT("Entertainment"),
-    OTHER("Other"),
-    ALL("All");
-
-    private final String typeName;
-
-    Type(String typeName) {
-        this.typeName = typeName;
-    }
-
-    public String getTypeName() {
-        return typeName;
-    }
-}
