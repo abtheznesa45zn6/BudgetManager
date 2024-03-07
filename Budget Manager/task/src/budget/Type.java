@@ -1,7 +1,5 @@
 package budget;
 
-import java.util.Set;
-
 public enum Type {
     FOOD("Food"),
     CLOTHES("Clothes"),
@@ -17,9 +15,5 @@ public enum Type {
 
     public String getTypeName() {
         return typeName;
-    }
-
-    public static Type[] getTypesWithoutAll() {
-        return new Type[]{FOOD, CLOTHES, ENTERTAINMENT, OTHER};
     }
 }

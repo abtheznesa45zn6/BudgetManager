@@ -18,13 +18,11 @@ public class SortAll implements SortingMethod {
             System.out.println("The purchase list is empty!");
         } else {
             System.out.println("All:");
-
             purchases.values()
                     .stream()
                     .flatMap(ArrayList::stream)
-                    .sorted(Comparator.comparing(p -> ((Purchase) p).getPrice().getInCent()).reversed())
+                    .sorted(Comparator.reverseOrder())
                     .forEach(System.out::println);
-
             System.out.println("Total: " + purchaseList.getSumOfAllPurchases());
         }
     }

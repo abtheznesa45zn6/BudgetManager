@@ -1,6 +1,6 @@
 package budget;
 
-public class Purchase {
+public class Purchase implements Comparable<Purchase> {
     Type type;
     String name;
     DollarAmount price;
@@ -28,5 +28,14 @@ public class Purchase {
     @Override
     public String toString() {
         return name.concat(" ").concat(price.toString());
+    }
+
+    @Override
+    public int compareTo(Purchase o) {
+        int result = Double.compare(this.getPriceInCent(), o.getPriceInCent());
+        if(result == 0) {
+            result = this.getName().compareToIgnoreCase(o.getName());
+        }
+        return result;
     }
 }

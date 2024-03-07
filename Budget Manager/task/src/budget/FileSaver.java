@@ -28,7 +28,7 @@ public class FileSaver {
                 for (Purchase purchase : purchases.get(type)) {
                     writer.write("PURCHASE"+"\n");
                     writer.write(purchase.getName()+"\n");
-                    writer.write(purchase.getPrice().getInCent()+"\n");
+                    writer.write(purchase.getPriceInCent()+"\n");
                 }
             }
         } catch (IOException e) {

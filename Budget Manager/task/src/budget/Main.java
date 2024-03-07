@@ -90,11 +90,13 @@ public class Main {
         if (action == 5) {
             purchaseList.setSortingMethod(new SortAll());
             purchaseList.print();
+            System.out.println("Total: " + purchaseList.getSumOfAllPurchases());
 
         } else {
             purchaseList.setSortingMethod(new SortByCertainType());
             purchaseList.setSortByType(getTypeForInt(action));
             purchaseList.print();
+            System.out.println("Total sum: " + purchaseList.getSumOfPurchaseOfType(getTypeForInt(action)));
         }
 
         System.out.println();

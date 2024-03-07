@@ -24,6 +24,7 @@ public class SortByType implements SortingMethod {
 
         List<Map.Entry<Type, Long>> purchasesSorted = new ArrayList<>(purchases.entrySet());
         purchasesSorted.sort(Map.Entry.comparingByValue());
+        Collections.reverse(purchasesSorted);
 
         System.out.println("Types:");
         for (Map.Entry<Type, Long> entry : purchasesSorted) {
@@ -34,8 +35,9 @@ public class SortByType implements SortingMethod {
                     );
         }
 
-        Set<Type> remainingTypes = purchases.keySet();
-        remainingTypes.remove(Type.values());
+        Set<Type> remainingTypes = new HashSet<>(Arrays.asList(Type.values()));
+        remainingTypes.removeAll(purchases.keySet());
+        remainingTypes.remove(Type.ALL);
 
         for (Type type : remainingTypes) {
             System.out.println(
