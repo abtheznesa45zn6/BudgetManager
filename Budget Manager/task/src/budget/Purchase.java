@@ -11,12 +11,18 @@ public class Purchase {
         this.price = price;
     }
 
+    public Type getType() {return type;}
+
     public String getName() {
         return name;
     }
 
     public DollarAmount getPrice() {
         return price;
+    }
+
+    public int getPriceInCent() {
+        return getPrice().getInCent();
     }
 
     @Override

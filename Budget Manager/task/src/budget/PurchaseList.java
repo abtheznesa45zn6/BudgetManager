@@ -53,13 +53,17 @@ public class PurchaseList {
     }
 
     public DollarAmount getSumOfPurchaseOfType(Type type) {
-        return purchases.get(type)
-                .stream()
-                .map(Purchase::getPrice)
-                .reduce(new DollarAmount(0), (acc, price) -> {
-                    acc.plus(price);
-                    return acc;
-                });
+        if (purchases.get(type) == null) {
+            return new DollarAmount(0);
+        } else {
+            return purchases.get(type)
+                    .stream()
+                    .map(Purchase::getPrice)
+                    .reduce(new DollarAmount(0), (acc, price) -> {
+                        acc.plus(price);
+                        return acc;
+                    });
+        }
     }
 
     void print() {
