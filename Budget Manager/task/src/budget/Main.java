@@ -85,15 +85,12 @@ public class Main {
             return;
         }
 
-        Type type = getTypeForInt(action);
-        System.out.println(type.getTypeName()+":");
-
         if (action == 5) {
             purchaseList.setSortingMethod(new All());
             purchaseList.print();
 
         } else {
-            purchaseList.print(type);
+            purchaseList.print(getTypeForInt(action));
         }
 
         System.out.println();

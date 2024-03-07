@@ -69,6 +69,7 @@ public class PurchaseList {
         if (isEmpty(type)) {
             System.out.println("The purchase list is empty");
         } else {
+            System.out.println(type.getTypeName()+":");
             for (Purchase purchase : purchases.get(type)) {
                 System.out.println(purchase);
             }

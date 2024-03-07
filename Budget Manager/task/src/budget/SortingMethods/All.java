@@ -20,6 +20,8 @@ public class All implements SortingMethod {
             return;
         }
 
+        System.out.println("All: ");
+
         purchases.values()
                 .stream()
                 .flatMap(ArrayList::stream)
