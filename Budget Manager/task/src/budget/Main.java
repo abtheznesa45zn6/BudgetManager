@@ -12,26 +12,13 @@ public class Main {
     public static void main(String[] args) {
         try {
             printActionMenu();
-
-            boolean exited = false;
-            while (!exited) {
-
+            while (true) {
                 int action = scanner.nextInt();
                 System.out.println();
-
-                switch(action) {
-                    case 0 -> exited = true;
-                    case 1 -> addIncome();
-                    case 2 -> chooseTypeOfPurchaseInput();
-                    case 3 -> chooseTypeOfPurchaseOutput();
-                    case 4 -> printBalance();
-                    case 5 -> save();
-                    case 6 -> load();
-                    case 7 -> analyze();
-                    default -> System.out.println("Action not available");
-                }
-
-                if (!exited) {
+                if (action == 0) {
+                    return;
+                } else {
+                    execute(action);
                     System.out.println();
                     printActionMenu();
                 }
@@ -39,6 +26,19 @@ public class Main {
         } finally {
             scanner.close();
             exit();
+        }
+    }
+
+    private static void execute(int action) {
+        switch(action) {
+            case 1 -> addIncome();
+            case 2 -> chooseTypeOfPurchaseInput();
+            case 3 -> chooseTypeOfPurchaseOutput();
+            case 4 -> printBalance();
+            case 5 -> save();
+            case 6 -> load();
+            case 7 -> analyze();
+            default -> System.out.println("Action not available");
         }
     }
 
