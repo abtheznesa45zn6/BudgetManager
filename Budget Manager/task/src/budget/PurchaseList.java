@@ -1,11 +1,19 @@
 package budget;
 
+import budget.SortingMethods.All;
+import budget.SortingMethods.SortingMethod;
+
 import java.util.*;
 
 public class PurchaseList {
     Map<Type, ArrayList<Purchase>> purchases = new HashMap<>();
+    private SortingMethod sortingMethod = new All();
 
     public PurchaseList() {
+    }
+
+    public Map<Type, ArrayList<Purchase>> getPurchases() {
+        return purchases;
     }
 
     void clear() {
@@ -28,11 +36,11 @@ public class PurchaseList {
         purchases.computeIfAbsent(type, k -> new ArrayList<>()).add(purchase);
     }
 
-    public Set<Type> keySet() {
+    Set<Type> keySet() {
         return purchases.keySet();
     }
 
-    DollarAmount getSumOfAllPurchases() {
+    public DollarAmount getSumOfAllPurchases() {
         return purchases.values()
                 .stream()
                 .flatMap(ArrayList::stream)
@@ -43,7 +51,7 @@ public class PurchaseList {
                 });
     }
 
-    DollarAmount getSumOfPurchaseOfType(Type type) {
+    public DollarAmount getSumOfPurchaseOfType(Type type) {
         return purchases.get(type)
                 .stream()
                 .map(Purchase::getPrice)
@@ -51,5 +59,24 @@ public class PurchaseList {
                     acc.plus(price);
                     return acc;
                 });
+    }
+
+    void print() {
+        sortingMethod.print(this);
+    }
+
+    void print(Type type) {
+        if (isEmpty(type)) {
+            System.out.println("The purchase list is empty");
+        } else {
+            for (Purchase purchase : purchases.get(type)) {
+                System.out.println(purchase);
+            }
+            System.out.println("Total sum: " + getSumOfPurchaseOfType(type));
+        }
+    }
+
+    public void setSortingMethod(All sortingMethod) {
+        this.sortingMethod = sortingMethod;
     }
 }

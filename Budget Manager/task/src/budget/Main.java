@@ -1,13 +1,15 @@
 package budget;
 
+import budget.SortingMethods.All;
+
 import java.util.Scanner;
 
 public class Main {
 
     static DollarAmount balance = new DollarAmount(0);
     static Scanner scanner = new Scanner(System.in);
-    static final PurchaseList purchases = new PurchaseList();
-    static final FileSaver fileSaver = new FileSaver(balance, purchases);
+    static final PurchaseList purchaseList = new PurchaseList();
+    static final FileSaver fileSaver = new FileSaver(balance, purchaseList);
 
     public static void main(String[] args) {
         try {
@@ -37,7 +39,7 @@ public class Main {
             case 4 -> printBalance();
             case 5 -> save();
             case 6 -> load();
-            case 7 -> analyze();
+            case 7 -> chooseTypOfAnalysis();
             default -> System.out.println("Action not available");
         }
     }
@@ -69,7 +71,7 @@ public class Main {
     }
 
     private static void chooseTypeOfPurchaseOutput() {
-        if (purchases.isEmpty()) {
+        if (purchaseList.isEmpty()) {
             System.out.println("The purchase list is empty!");
             return;
         }
@@ -87,21 +89,11 @@ public class Main {
         System.out.println(type.getTypeName()+":");
 
         if (action == 5) {
-            for (Type t : Type.values()) {
-                printPurchaseList(t);
-            }
-
-            System.out.println("Total sum: " + purchases.getSumOfAllPurchases());
+            purchaseList.setSortingMethod(new All());
+            purchaseList.print();
 
         } else {
-            if (purchases.isEmpty(type)) {
-                System.out.println("The purchase list is empty");
-                return;
-            } else {
-                printPurchaseList(type);
-
-                System.out.println("Total sum: " + purchases.getSumOfPurchaseOfType(type));
-            }
+            purchaseList.print(type);
         }
 
         System.out.println();
@@ -109,12 +101,6 @@ public class Main {
     }
 
     static Type getTypeForInt(int number) {
-
-        // test #5 calls this for some reason
-        if (number == 0) {
-            System.exit(0);
-        }
-
         return switch(number) {
             case 1 -> Type.FOOD;
             case 2 -> Type.CLOTHES;
@@ -123,14 +109,6 @@ public class Main {
             case 5 -> Type.ALL;
             default -> throw new IllegalStateException("Type does not exist");
         };
-    }
-
-    private static void printPurchaseList(Type type) {
-        if (purchases.get(type) != null) {
-            for (Purchase purchase : purchases.get(type)) {
-                System.out.println(purchase);
-            }
-        }
     }
 
     private static void addPurchase(Type type) {
@@ -146,7 +124,7 @@ public class Main {
         DollarAmount price = new DollarAmount(priceString);
 
         Purchase purchase = new Purchase(type, name, price);
-        purchases.add(type, purchase);
+        purchaseList.add(type, purchase);
 
         balance.minus(price);
     }
@@ -170,9 +148,24 @@ public class Main {
         }
     }
 
-    private static void analyze() {
+    private static void chooseTypOfAnalysis() {
+        printAnalyzeMenu();
+
+        int action = scanner.nextInt();
+        System.out.println();
+
+        if (action == 4) {
+            return;
+        }
+
+        analyze(action);
+
+        System.out.println();
+        printAnalyzeMenu();
     }
-    
+
+    private static void analyze(int action) {
+    }
 
     private static void printActionMenu() {
         System.out.print(
@@ -213,6 +206,18 @@ public class Main {
                 4) Other
                 5) All
                 6) Back
+                """
+        );
+    }
+
+    private static void printAnalyzeMenu() {
+        System.out.print(
+                """
+                How do you want to sort?
+                1) Sort all purchases
+                2) Sort by type
+                3) Sort certain type
+                4) Back
                 """
         );
     }
