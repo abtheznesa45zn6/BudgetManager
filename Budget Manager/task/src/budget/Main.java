@@ -160,10 +160,28 @@ public class Main {
         }
 
         setSortingMethod(action);
+
+        if (action == 3) {
+            chooseTypeForAnalysis();
+        }
         purchaseList.print();
 
         System.out.println();
-        printAnalyzeMenu();
+        chooseTypOfAnalysis();
+    }
+
+    private static void chooseTypeForAnalysis() {
+        printPurchaseTypeInputMenu();
+
+        int action = scanner.nextInt();
+        System.out.println();
+
+        if (action == 5) {
+            return;
+        }
+
+        purchaseList.setSortByType(getTypeForInt(action));
+        System.out.println();
     }
 
     private static void setSortingMethod(int action) {
